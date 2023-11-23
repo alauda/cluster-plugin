@@ -105,7 +105,6 @@ function parse_args() {
         ;;
         --skip-upload)
             SKIP_UPLOAD="true"
-            shift
         ;;
         *)
             if [ -n "$1" ]; then
