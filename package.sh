@@ -105,8 +105,13 @@ function print_args() {
 function prepare() {
     echo "Temporary output directory: ${OUTPUT_DIR}"
     mkdir -p "${OUTPUT_DIR}/res/bin/aarch64" "${OUTPUT_DIR}/res/bin/x86_64"
-    curl -L -o "${OUTPUT_DIR}/res/bin/aarch64/skopeo" "${SKOPEO_DOWNLOAD_URL}/skopeo.linux.arm64"
-    curl -L -o "${OUTPUT_DIR}/res/bin/x86_64/skopeo" "${SKOPEO_DOWNLOAD_URL}/skopeo.linux.amd64"
+    if [ ! -f "${OUTPUT_DIR}/res/bin/aarch64/skopeo" ]; then
+        curl -L -o "${OUTPUT_DIR}/res/bin/aarch64/skopeo" "${SKOPEO_DOWNLOAD_URL}/skopeo.linux.arm64"
+    fi 
+
+    if [ ! -f "${OUTPUT_DIR}/res/bin/x86_64/skopeo" ]; then
+        curl -L -o "${OUTPUT_DIR}/res/bin/x86_64/skopeo" "${SKOPEO_DOWNLOAD_URL}/skopeo.linux.amd64"
+    fi
     chmod +x "${OUTPUT_DIR}/res/bin/aarch64/skopeo" "${OUTPUT_DIR}/res/bin/x86_64/skopeo"
 }
 
@@ -121,6 +126,8 @@ function package_artifacts() {
         fi
     fi
 
+    # If use the same directory to perform packaging, need to clean up the previously saved artifacts.
+    rm -rf ${OUTPUT_DIR}/res/registry
     mkdir -p "${OUTPUT_DIR}/res/registry"
     while read -r it; do
         if [ "${it}" == "" ] || [ "${it:0:1}" == '#' ]; then
@@ -139,11 +146,13 @@ function package_resources() {
 }
 
 function package_hooks() {
+    rm -rf ${OUTPUT_DIR}/res/hooks
     cp -rf "${INPUT_HOOKS}" "${OUTPUT_DIR}/res/hooks"
 }
 
 function package_setup() {
     cp -f "${INPUT_SETUP}" "${OUTPUT_DIR}/setup.sh"
+    chmod +x ${OUTPUT_DIR}/setup.sh
 }
 
 function output() {
