@@ -1,4 +1,1 @@
-# OCI artifacts need to upload, each line include one artifact with format "repository:tag"
-ait/cpaas-installer:v3.15.0-beta.1.gd9aec1b2
-ait/erebus:v3.15.0-beta.1.gbe95caa9
-ait/chart-cluster-manager:v3.14.0-alpha.444
+# OCI artifacts need to be uploaded, each line includes one artifact with the format "repository:tag"

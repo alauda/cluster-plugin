@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#!/bin/bash
 
 set -o errexit
 set -o nounset
@@ -23,16 +23,17 @@ HOOKS_DIR="res/hooks"
 REGISTRY=""
 USERNAME=""
 PASSWORD=""
+SKIP_UPLOAD="false"
 
 function detect() {
     local v
     REGISTRY=$(kubectl get productbases.product.alauda.io base -o jsonpath='{.spec.registry.address}' --ignore-not-found)
     v=$(kubectl get secrets -n cpaas-system registry-admin -o jsonpath='{.data.username}' --ignore-not-found)
-    if [ "x${v}" != "x" ]; then
+    if [ -n "${v}" ]; then
         USERNAME=$(echo "${v}" | base64 -d)
     fi
     v=$(kubectl get secrets -n cpaas-system registry-admin -o jsonpath='{.data.password}' --ignore-not-found)
-    if [ "x${v}" != "x" ]; then
+    if [ -n "${v}" ]; then
         PASSWORD=$(echo "${v}" | base64 -d)
     fi
 }
@@ -46,11 +47,15 @@ function usage() {
     echo "--registry   set registry address, the detected values from the current environment is: ${REGISTRY}"
     echo "--username   set registry username, the detected values from the current environment is: ${USERNAME}"
     echo "--password   set registry password, the default value will be detected from the current environment"
+    echo "--skip-upload   skip upload chat and images, default is ${SKIP_UPLOAD}"
 }
 
 function upload_artifacts() {
-    while read -r it;
-    do
+    if [ "${SKIP_UPLOAD}" != "false" ]; then
+        echo "skip upload"
+        return 0
+    fi
+    while read -r it; do
         if [ "${it}" == "" ] || [ "${it:0:1}" == '#' ]; then
             continue
         fi
@@ -66,36 +71,57 @@ function apply_resources() {
 function apply_hooks() {
     local hooks
     hooks=$(ls "${HOOKS_DIR}/"*.sh)
-    for it in ${hooks};
-    do
+    for it in ${hooks}; do
         bash "${it}"
     done
 }
 
-while [[ $# -gt 0 ]]
-do
-key="$1"
-case $key in
-    --registry)
-    REGISTRY="$2"
-    shift 2
-    ;;
-    --username)
-    USERNAME="$2"
-    shift 2
-    ;;
-    --password)
-    PASSWORD="$2"
-    shift 2
-    ;;
-    *)
-    echo "unknown key ${key}"
-    usage
-    exit 1
-    ;;
-esac
-done
+function parse_args() {
+    if [ "$#" -eq "0" ]; then
+        return
+    fi
 
+    local args=""
+    for a in "$@"; do
+        args="${args} ${a/=/ }"
+    done
+
+    IFS=" " read -r -a args <<< "$args"
+    set -- "${args[@]}"
+
+    while [ "$#" -gt "0" ]; do
+    case "$1" in
+        --registry)
+            REGISTRY="$2"
+            shift
+        ;;
+        --username)
+            USERNAME="$2"
+            shift
+        ;;
+        --password)
+            PASSWORD="$2"
+            shift
+        ;;
+        --skip-upload)
+            SKIP_UPLOAD="$2"
+            shift
+        ;;
+        *)
+            if [ -n "$1" ]; then
+                echo "unknown: $1"
+                usage
+                exit 1
+            fi
+            break
+        ;;
+    esac
+        shift
+    done
+}
+
+
+parse_args "$@"
 upload_artifacts
 apply_resources
 apply_hooks

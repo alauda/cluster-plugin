@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#!/bin/bash
 
 set -o errexit
 set -o nounset
@@ -32,51 +32,75 @@ function usage() {
     echo "--password     set the source registry password"
     echo "--output       set the output file path, the default is ${OUTPUT}"
     echo "--resources    set the resources yaml path which containing ModulePlugin, the default is ${INPUT_RESOURCES}"
-    echo "--artifacts    set the artifacts path, the default is ${INPUT_ARTIFACTS}"
-    echo "--hooks        set the hooks path, the default is ${INPUT_HOOKS}"
-    echo "--setup        set the setup path, the default is ${INPUT_SETUP}"
+    echo "--artifacts    set the artifacts file path, the default is ${INPUT_ARTIFACTS}"
+    echo "--hooks        set the hooks directory path, the default is ${INPUT_HOOKS}"
+    echo "--setup        set the setup shell path, the default is ${INPUT_SETUP}"
 }
 
+function parse_args() {
+    if [ "$#" -eq "0" ]; then
+        return
+    fi
 
-while [[ $# -gt 0 ]]
-do
-key="$1"
-case $key in
-    --registry)
-    REGISTRY="$2"
-    shift 2
-    ;;
-    --username)
-    USERNAME="$2"
-    shift 2
-    ;;
-    --password)
-    PASSWORD="$2"
-    shift 2
-    ;;
-    --output)
-    OUTPUT="$2"
-    shift 2
-    ;;
-    --resources)
-    INPUT_RESOURCES="$2"
-    shift 2
-    ;;
-    --artifacts)
-    INPUT_ARTIFACTS="$2"
-    shift 2
-    ;;
-    --hooks)
-    INPUT_HOOKS="$2"
-    shift 2
-    ;;
-    *)
-    echo "unknown key ${key}"
-    usage
-    exit 1
-    ;;
-esac
-done
+    local args=""
+    for a in "$@"; do
+        args="${args} ${a/=/ }"
+    done
+
+    IFS=" " read -r -a args <<< "$args"
+    set -- "${args[@]}"
+
+    while [ "$#" -gt "0" ]; do
+    case "$1" in
+        --registry)
+            REGISTRY="$2"
+            shift
+        ;;
+        --username)
+            USERNAME="$2"
+            shift
+        ;;
+        --password)
+            PASSWORD="$2"
+            shift
+        ;;
+        --output)
+            OUTPUT="$2"
+            shift
+        ;;
+        --resources)
+            INPUT_RESOURCES="$2"
+            shift
+        ;;
+        --artifacts)
+            INPUT_ARTIFACTS="$2"
+            shift
+        ;;
+        --hooks)
+            INPUT_HOOKS="$2"
+            shift
+        ;;
+        *)
+            if [ -n "$1" ]; then
+                echo "unknown: $1"
+                usage
+                exit 1
+            fi
+            break
+        ;;
+    esac
+        shift
+    done
+}
+
+function print_args() {
+    echo "output:         ${OUTPUT}"
+    echo "registry:       ${REGISTRY}"
+    echo "resources:      ${INPUT_RESOURCES}"
+    echo "artifacts:      ${INPUT_ARTIFACTS}"
+    echo "hooks:          ${INPUT_HOOKS}"
+    echo "setup.sh:       ${INPUT_SETUP}"
+}
 
 function prepare() {
     echo "Temporary output directory: ${OUTPUT_DIR}"
@@ -98,8 +122,7 @@ function package_artifacts() {
     fi
 
     mkdir -p "${OUTPUT_DIR}/res/registry"
-    while read -r it;
-    do
+    while read -r it; do
         if [ "${it}" == "" ] || [ "${it:0:1}" == '#' ]; then
             continue
         fi
@@ -133,6 +156,8 @@ function clean() {
     fi
 }
 
+parse_args "$@"
+print_args
 prepare
 package_resources
 package_hooks
