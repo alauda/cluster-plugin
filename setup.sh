@@ -44,10 +44,10 @@ function usage() {
     echo "Usage:"
     echo "bash setup.sh [Options]"
     echo "Options:"
-    echo "--registry   set registry address, the detected values from the current environment is: ${REGISTRY}"
-    echo "--username   set registry username, the detected values from the current environment is: ${USERNAME}"
-    echo "--password   set registry password, the default value will be detected from the current environment"
-    echo "--skip-upload   skip upload chat and images, default is ${SKIP_UPLOAD}"
+    echo "-r|--registry  set registry address, the detected values from the current environment is: ${REGISTRY}"
+    echo "-u|--username  set registry username, the detected values from the current environment is: ${USERNAME}"
+    echo "-p|--password  set registry password, the default value will be detected from the current environment"
+    echo "--skip-upload  skip upload chat and images, default is ${SKIP_UPLOAD}"
 }
 
 function upload_artifacts() {
@@ -91,20 +91,20 @@ function parse_args() {
 
     while [ "$#" -gt "0" ]; do
     case "$1" in
-        --registry)
+        --registry|-r)
             REGISTRY="$2"
             shift
         ;;
-        --username)
+        --username|-u)
             USERNAME="$2"
             shift
         ;;
-        --password)
+        --password|-p)
             PASSWORD="$2"
             shift
         ;;
         --skip-upload)
-            SKIP_UPLOAD="$2"
+            SKIP_UPLOAD="true"
             shift
         ;;
         *)
