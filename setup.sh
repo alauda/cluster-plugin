@@ -27,12 +27,12 @@ SKIP_UPLOAD="false"
 
 function detect() {
     local v
-    REGISTRY=$(kubectl get productbases.product.alauda.io base -o jsonpath='{.spec.registry.address}' --ignore-not-found)
-    v=$(kubectl get secrets -n cpaas-system registry-admin -o jsonpath='{.data.username}' --ignore-not-found)
+    REGISTRY=$(kubectl get productbases.product.alauda.io base -o jsonpath='{.spec.registry.address}' --ignore-not-found || :)
+    v=$(kubectl get secrets -n cpaas-system registry-admin -o jsonpath='{.data.username}' --ignore-not-found || :)
     if [ -n "${v}" ]; then
         USERNAME=$(echo "${v}" | base64 -d)
     fi
-    v=$(kubectl get secrets -n cpaas-system registry-admin -o jsonpath='{.data.password}' --ignore-not-found)
+    v=$(kubectl get secrets -n cpaas-system registry-admin -o jsonpath='{.data.password}' --ignore-not-found || :)
     if [ -n "${v}" ]; then
         PASSWORD=$(echo "${v}" | base64 -d)
     fi
@@ -70,10 +70,15 @@ function apply_resources() {
 
 function apply_hooks() {
     local hooks
-    hooks=$(ls "${HOOKS_DIR}/"*.sh)
+    # When the hook script does not exist, ensure that it can run normally.
+    hooks=$(ls "${HOOKS_DIR}/"*.sh || :)
     for it in ${hooks}; do
         bash "${it}"
     done
+}
+
+function success() {
+    echo "setup success"
 }
 
 function parse_args() {
@@ -104,7 +109,8 @@ function parse_args() {
             shift
         ;;
         --skip-upload)
-            SKIP_UPLOAD="true"
+            SKIP_UPLOAD="$2"
+            shift
         ;;
         *)
             if [ -n "$1" ]; then
@@ -124,3 +130,4 @@ parse_args "$@"
 upload_artifacts
 apply_resources
 apply_hooks
+success
