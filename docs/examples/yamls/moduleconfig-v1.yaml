@@ -1,0 +1,48 @@
+apiVersion: cluster.alauda.io/v1alpha1
+kind: ModuleConfig
+metadata:
+  annotations:
+    cpaas.io/built-in-plugin: "true"
+    cpaas.io/display-name: '{"en": "Plugin Demo", "zh": "测试插件"}'
+    cpaas.io/module-name: test-plugin
+  finalizers:
+    - moduleconfig
+  labels:
+    cpaas.io/module-catalog: devops
+    cpaas.io/module-name: test-plugin
+    cpaas.io/module-type: plugin
+    cpaas.io/module-version: v1
+    cpaas.io/product: ACP
+  name: test-plugin-v1
+spec:
+  affinity:
+    pluginAntiAffinity:
+      - test-plugin
+    clusterAffinity:
+      matchLabels:
+        is-global: "true"
+  appReleases:
+    - chartVersions:
+        - name: ait/test-plugin
+          releaseName: test-plugin
+          version: refer-to-productbase
+      name: test-plugin
+  deleteRiskDescription: 卸载风险提示
+  deleteRiskDescriptionEn: Risk warning of uninstallation
+  deleteable: true
+  dependencies:
+    - moduleName: base
+      versionsMatch:
+        - '*'
+  mainChart: ait/test-plugin
+  name: test-plugin
+  targetClusterVersions:
+    - v3.16.0-alpha.595
+  upgradeRiskDescription: 对用户已部署的应用无影响
+  upgradeRiskDescriptionEn: No effect on user-deployed applications.
+  upgradeRiskLevel: low
+  version: v1
+status:
+  readyForDeploy: true
+  targetClusterVersions:
+    - v3.16.0-alpha.595
