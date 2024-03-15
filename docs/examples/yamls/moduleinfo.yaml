@@ -1,0 +1,10 @@
+apiVersion: cluster.alauda.io/v1alpha1
+kind: ModuleInfo
+metadata:
+  labels:
+    cpaas.io/cluster-name: test-cluster
+    cpaas.io/module-name: test-plugin
+    cpaas.io/module-type: plugin
+  name: test-plugin-moduleinfo
+spec:
+  version: v1
