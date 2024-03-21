@@ -1,0 +1,28 @@
+# 最简单的配置只需要包含这两行：
+supportedUpgradeVersions: ">= v0.0.1"         # 可以支持的升级版本
+mustUpgrade: false                            # 是否必须升级
+
+# 下面是可选配置，用于在插件安装和配置的页面上给出选项，并将用户的选项同步给AppRelease
+config:                                       # 配置 ModuleInfo 中的 spec.config 的内容
+  key1:
+    key2: "values1"                           # 默认值
+
+valuesTemplates:                              # 为 chart-example 配置 values 参数
+  ait/chart-example: |
+    chartkey1: << .MiConfig.key1.key2 | quote>> # 引用 ModuleInfo 的 spec.config 的 key1.key2
+
+deployDescriptors:                       　   # 安装参数
+  - path: key1.key2                       　    # ModuleInfo 的 spec.config 下的字段路径
+    x-descriptors:
+      - 'urn:alm:descriptor:com.tectonic.ui:text'
+      - 'urn:alm:descriptor:com.tectonic.ui:validation:required'
+      - 'urn:alm:descriptor:label:en:Example praram'
+      - 'urn:alm:descriptor:label:zh:示例参数'
+
+editDescriptors:                       　     # 更新参数
+  - path: key1.key2                       　    # ModuleInfo 的 spec.config 下的字段路径
+    x-descriptors:
+      - 'urn:alm:descriptor:com.tectonic.ui:text'
+      - 'urn:alm:descriptor:com.tectonic.ui:validation:required'
+      - 'urn:alm:descriptor:label:en:Example praram'
+      - 'urn:alm:descriptor:label:zh:示例参数'

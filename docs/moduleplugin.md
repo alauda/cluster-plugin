@@ -1,91 +1,61 @@
 # ModulePlugin 配置说明
 
+## 配置说明
 ```yaml
 kind: ModulePlugin
 metadata:
   annotations:
-    cpaas.io/built-in-plugin: "true"  # 表示是否是内置 plugin，cluster-transformer 只为内置 plugin 创建 ModuleConfig 资源
-    cpaas.io/display-name: '{"en": "English Plugin Name", "zh": "插件中文名称"}'  # 插件中英文名称
-    cpaas.io/module-name: test-plugin  # 插件名称
+    cpaas.io/built-in-plugin: "true" # 标识为未拆包的插件
+    cpaas.io/display-name: '{"en": "English Plugin Name", "zh": "插件中文名称"}' # 显示名称
+    cpaas.io/module-name: test-plugin # 插件名称
   labels:
-    cpaas.io/module-catalog: devops
-    cpaas.io/module-name: test-plugin
-    cpaas.io/module-type: plugin # 取值必须为 plugin，表示当前模块是插件
-    cpaas.io/product: ACP
-    helm.sh/chart-name: base-plugins
-    helm.sh/release-name: base-plugins
-    helm.sh/release-namespace: cpaas-system
-  name: test-plugin
+    cpaas.io/module-catalog: devops # 可选，插件分类
+    cpaas.io/module-name: test-plugin # 插件名称
+    cpaas.io/module-type: plugin # 固定字段
+    cpaas.io/product: devops # 所属产品
+  name: test-plugin # 插件名称
 spec:
-  # 插件亲和配置。亲和类型有 clusterAffinity、clusterAntiAffinity 和 pluginAntiAffinity 三类。
-  # - clusterAffinity: 如果插件部署的集群资源 clusters.platform.tkestack.io 能够匹配 matchLabels 的标签，则插件可以部署；
-  # - clusterAntiAffinity: 如果插件部署的集群资源 clusters.platform.tkestack.io 不能匹配 matchLabels 的标签，则插件可以部署；
-  # - pluginAntiAffinity: 如果插件部署的集群已经存在同名的插件，则拒绝部署
+  # 可选， 插件的部署限制, 仅当有限制时填写
   affinity:
     pluginAntiAffinity:
     - test-plugin
   appReleases:
   - chartVersions:
-    - name: ait/test-plugin
-      releaseName: test-plugin
-      version: refer-to-productbase
+    - name: ait/chart-example
+      releaseName: chart-example
+      version: v0.0.1
     name: test-plugin
-  deleteRiskDescription: 中文 # 删除插件风险提示中文文案
-  deleteRiskDescriptionEn: English # 删除插件风险提示英文文案
+  deleteRiskDescription: 中文 # 可选，删除插件风险提示中文文案
+  deleteRiskDescriptionEn: English # 可选，删除插件风险提示英文文案
   deleteable: true # 插件是否可以删除
   description:
     en: English # 插件功能描述，英文
     zh: 中文 # 插件功能描述，中文
   labelCluster: "true"
-  logo: data:image/svg+xml;base64,xxx # logo
-  mainChart: ait/test-plugin # 主 chart，如果插件只有一个 chart，ModuleConfig 版本号即主 chart 版本号
+  logo: data:image/svg+xml;base64,xxx # logo 为 base64 后的 svg 数据，在线压缩svg工具: https://vecta.io/nano
+  mainChart: ait/test-plugin # 主 chart, 存放有插件配置项 scripts/plugin-config.yaml
   name: test-plugin
-  upgradeRiskDescription: 中文 # 插件升级风险提示中文文案
-  upgradeRiskDescriptionEn: English # 插件升级风险提示英文文文案
-  upgradeRiskLevel: low # 插件升级风险等级，可取值：low, middle, high
-  resourcesBlockRemove: # 可阻止删除插件的资源。即只有这些资源被删除后才可以删除插件
+  upgradeRiskDescription: 中文 # 可选，插件升级风险提示中文文案
+  upgradeRiskDescriptionEn: English # 可选，插件升级风险提示英文文案
+  upgradeRiskLevel: low # 可选，插件升级风险等级，可取值：low, middle, high
+  resourcesBlockRemove: # 可选，可阻止删除插件的资源。即只有这些资源被删除后才可以删除插件
   - apiVersion: test.alauda.io/v1beta1
     kind: BlockService
-  
-status:
-  installed: # 插件部署信息。该示例表示插件部署在两个集群，global 集群部署的 v1 版本，test-cluster 集群部署的 v2 版本
-  - cluster: global
-    name: global-e671599464a5b1717732c5ba36079795 # 插件的 ModuleInfo 资源
-    phase: Running
-    version: v1
-  - cluster: test-cluster
-    name: test-cluster-71d6ba072b3a9b02a0dfec35da192c4d # 插件的 ModuleInfo 资源
-    phase: Running
-    version: v2
-  latestVersion: v2 # 插件可部署的最新版本
-  moduleConfigs: # 插件版本信息，即插件的 ModuleConfig 资源信息。当前示例表示，该插件目前有两个 ModuleConfig，版本分别是 v1 和 v2，可部署的集群 ACP 版本：v3.16.0-alpha.595
-  - affinity:
-      pluginAntiAffinity:
-      - test-plugin
-    name: test-plugin-v1
-    readyForDeploy: true
-    targetClusterVersions:
-    - v3.16.0-alpha.595
-    version: v1
-  - affinity:
-      pluginAntiAffinity:
-        - test-plugin
-    name: test-plugin-v2
-    readyForDeploy: true
-    targetClusterVersions:
-    - v3.16.0-alpha.595
-    version: v2
-  # targetClusterVersions 表示插件可部署的集群 ACP 版本
-  targetClusterVersions:
-    v3.16.0-alpha.595:
-      affinity:
-        pluginAntiAffinity:
-        - test-plugin
-      description:
-        en: English
-        zh: 中文
-      logo: data:image/svg+xml;base64,xxx
-      moduleConfigSpecHash: fe7b62b51891029dff6779684e17d553f7dcd82691179e4da7db9bab0c2a5b64
-      readyForDeploy: true
-      version: v3.16.0-beta.23.g1e74fa6e
 ```
+
+---------------
+| 字段                          | 说明                                                                                                                                                                                                                                                                                                                                  | 必选 |
+|-----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----|
+| spec.appReleases            | 将 chart 组织成 apprelease 形式由 sentry 安装,　apprelease 会被并行安装                                                                                                                                                                                                                                                                             | 是  |
+| spec.deleteable             | 插件是否可删除                                                                                                                                                                                                                                                                                                                             | 是  |
+| spec.description            | 插件的中英文描述                                                                                                                                                                                                                                                                                                                            | 是  |
+| spec.logo                   | logo 为 base64 后的 svg 数据，在线压缩svg工具: https://vecta.io/nano                                                                                                                                                                                                                                                                            | 是  |
+| spec.mainChart              | 主 chart, 存放有插件配置项 scripts/plugin-config.yaml                                                                                                                                                                                                                                                                                        | 是  |
+| spec.name                   | 插件名称                                                                                                                                                                                                                                                                                                                                | 是  |
+| spec.upgradeRiskDescription | 插件的升级说明                                                                                                                                                                                                                                                                                                                             | 否  |
+| spec.upgradeRiskLevel       | 插件的升级风险等级，可取值：low, middle, high                                                                                                                                                                                                                                                                                                     | 否  |
+| spec.affinity               | 插件亲和配置。亲和类型有 clusterAffinity、clusterAntiAffinity 和 pluginAntiAffinity 三类。<br/>1. clusterAffinity: 如果插件部署的集群资源 clusters.platform.tkestack.io 能够匹配 matchLabels 的标签，则插件可以部署； <br/>2. clusterAntiAffinity: 如果插件部署的集群资源 clusters.platform.tkestack.io 不能匹配 matchLabels 的标签，则插件可以部署；<br/> 3. pluginAntiAffinity: 如果插件部署的集群已经存在同名的插件，则拒绝部署 | 否  |
+| spec.deleteRiskDescription  | 插件的删除说明                                                                                                                                                                                                                                                                                                                             | 否  |
+| spec.entrypointTemplate     | 插件部署后的配置入口                                                                                                                                                                                                                                                                                                                          | 否  |
+| spec.resourcesBlockRemove                       | 可阻止删除插件的资源。即只有这些资源被删除后才可以删除插件                                                                                                                                                                                                                                                                                                       | 否  |
+| spec.labelCluster           | 是否在部署后给 cluster 打 label                                                                                                                                                                                                                                                                                                             | 否  |

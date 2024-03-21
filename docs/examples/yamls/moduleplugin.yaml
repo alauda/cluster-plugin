@@ -19,9 +19,9 @@ spec:
         is-global: "true"
   appReleases:
     - chartVersions:
-        - name: ait/test-plugin
-          releaseName: test-plugin
-          version: refer-to-productbase
+        - name: ait/chart-example
+          releaseName: chart-example
+          version: v0.0.1
       name: test-plugin
   deleteRiskDescription: 卸载风险提示
   deleteRiskDescriptionEn: Risk warning of uninstallation
