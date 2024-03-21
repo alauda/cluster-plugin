@@ -17,13 +17,13 @@
 3. 用户创建 ModuleInfo 资源，该资源指定了插件版本、插件需要部署的集群以及插件的依赖。moduleinfo-controller 等待插件的依赖运行正常之后才会往目标集群部署插件的 AppRelease 资源。
 4. 目标集群的 sentry 服务监听到 AppRelease 的请求，会下载对应的 chart 并协调出 workloads，直到所有的 workloads 运行正常，更新 AppRelease 的状态。
 
-## 配置说明
+## 插件配置说明
 为方便自定义插件，这里整理了 ModulePlugin、ModuleConfig 和 ModuleInfo 资源的常见配置：
 1. ModulePlugin: [moduleplugin.md](docs/moduleplugin.md)
 2. ModuleConfig: [moduleconfig.md](docs/moduleconfig.md)
 3. ModuleInfo: [moduleinfo.md](docs/moduleinfo.md)
 
-## 使用示例
+## 插件使用示例
 这里列举一些常见的使用示例：
 1. 部署插件: [deploy.md](docs/examples/deploy.md)
 2. 更新插件版本: [upgrade.md](docs/examples/upgrade.md)

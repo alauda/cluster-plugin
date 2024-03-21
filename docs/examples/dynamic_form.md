@@ -34,6 +34,6 @@
       - 'urn:alm:descriptor:description:zh:最少 1 天，最多 30 天'
      ```
 2. 将 chart 版本更新为 v3 并推送到 chart 仓库中。
-3. 参考文档 [02_upgrade.md](upgrade.md) 操作插件升级流程。
+3. 参考文档 [upgrade.md](upgrade.md) 操作插件升级流程。
 4. 进入 ACP 控制台的插件列表页，展开 test-plugin 右侧按钮点击「更新配置参数」，即可看到表单。表单效果如图：
    ![dynamic_form.png](../../images/dynamic_form.png)
