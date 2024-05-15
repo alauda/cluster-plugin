@@ -106,3 +106,26 @@ scripts/plugin-config.yaml 文件需要创建在 ModulePlugin CR 指定的 mainC
 ### 部署和卸载插件
 - 在平台管理中点击：集群管理→ 集群→ 进入需要安装插件的集群 → 插件→ {插件名称} → 部署 
 - 在平台管理中点击：集群管理→ 集群→ 进入需要卸载插件的集群 → 插件→ {插件名称} → 卸载
+
+## 插件开发规范
+1. 插件只管理和配置自身的资源。如果有依赖的资源，这些资源由依赖的插件控制； 
+2. 插件版本要符合 semver 规范：有重大变更递增主版本号，兼容变更递增次要版本号，bug 修复递增 patch 版本号； 
+3. 如果有依赖的插件，需要在 ModulePlugin 资源 spec.dependencies[] 字段配置依赖的插件列表，同时在 spec.dependencies[].versionsMatch[] 字段中配置依赖的插件版本列表; 
+   1. 配置依赖的示例：
+   ```yaml
+   apiVersion: cluster.alauda.io/v1alpha1
+   kind: ModulePlugin
+   metadata:
+   name: plugin-demo
+   spec:
+   # ...
+   - dependencies
+      - moduleName: kubernetes
+        versionsMatch:
+         - '>=1.16.0'
+   ```
+   以上示例中 plugin-demo 插件依赖 kubernetes v1.16.0 以及更高版本。versionMatch 的表达式需要符合 [semver ranges 规范](https://github.com/blang/semver)。
+4. 建议把插件部署在独有的命名空间下，尤其不建议部署在 kube-system/kube-public/cpaas-system namespace 等系统命名空间下； 
+5. 插件中 k8s client 建议使用 ACP 支持的最高 k8s 版本，如果插件中部署或使用 k8s 内置资源，建议用最新稳定版本。避免 ACP 升级后 API 失效影响插件正常使用； 
+6. 插件可以独立于 ACP 发版。在有依赖插件或者 ACP 版本变更时，需要开发者回归验证，避免造成插件不可用； 
+7. 插件的版本尽量保持向后兼容。尤其插件被其他插件依赖时，兼容的版本可以减少对其他插件的影响。
