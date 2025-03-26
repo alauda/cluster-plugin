@@ -1,7 +1,7 @@
 kind: ModulePlugin
 metadata:
   annotations:
-    cpaas.io/built-in-plugin: "true"
+    cpaas.io/built-in-plugin: "false"
     cpaas.io/display-name: '{"en": "Plugin Demo", "zh": "测试插件"}'
     cpaas.io/module-name: test-plugin
   labels:
