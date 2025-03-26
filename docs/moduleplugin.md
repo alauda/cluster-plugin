@@ -5,7 +5,7 @@
 kind: ModulePlugin
 metadata:
   annotations:
-    cpaas.io/built-in-plugin: "true" # 标识为未拆包的插件
+    cpaas.io/built-in-plugin: "false" # 标识是否产品集成的插件
     cpaas.io/display-name: '{"en": "English Plugin Name", "zh": "插件中文名称"}' # 显示名称
     cpaas.io/module-name: test-plugin # 插件名称
   labels:
