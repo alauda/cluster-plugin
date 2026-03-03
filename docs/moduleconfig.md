@@ -65,7 +65,7 @@ spec:
     sizeSettings:
       quotaTip: {}
   upgradeRiskDescription: 中文 # 可选，插件升级风险提示中文文案
-  upgradeRiskDescriptionEn: English # 可选，插件升级风险提示英文文文案
+  upgradeRiskDescriptionEn: English # 可选，插件升级风险提示英文文案
   upgradeRiskLevel: low # 可选，插件升级风险等级，可取值：low, middle, high
   version: v0.0.1 # 当前 ModuleConfig 版本
 ```
@@ -85,7 +85,7 @@ spec:
 | spec.upgradeRiskLevel         | 插件的升级风险等级，可取值：low, middle, high                                                                                                                                                                                                                                                                                                     | 否  |
 | spec.affinity                 | 插件亲和配置。亲和类型有 clusterAffinity、clusterAntiAffinity 和 pluginAntiAffinity 三类。<br/>1. clusterAffinity: 如果插件部署的集群资源 clusters.platform.tkestack.io 能够匹配 matchLabels 的标签，则插件可以部署； <br/>2. clusterAntiAffinity: 如果插件部署的集群资源 clusters.platform.tkestack.io 不能匹配 matchLabels 的标签，则插件可以部署；<br/> 3. pluginAntiAffinity: 如果插件部署的集群已经存在同名的插件，则拒绝部署 | 否  |
 | spec.deleteRiskDescription    | 插件的中文删除说明                                                                                                                                                                                                                                                                                                                           | 否  |
-| deleteRiskDescriptionEn       | 插件的英文删除说明                                                                                                                                                                                                                                                                                                                           | 否  |
+| spec.deleteRiskDescriptionEn  | 插件的英文删除说明                                                                                                                                                                                                                                                                                                                           | 否  |
 | spec.entrypointTemplate       | 插件部署后的配置入口                                                                                                                                                                                                                                                                                                                          | 否  |
 | spec.resourcesBlockRemove     | 可阻止删除插件的资源。即只有这些资源被删除后才可以删除插件                                                                                                                                                                                                                                                                                                       | 否  |
 | spec.labelCluster             | 是否在部署后给 cluster 打 label                                                                                                                                                                                                                                                                                                             | 否  |

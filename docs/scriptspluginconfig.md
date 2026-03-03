@@ -15,7 +15,7 @@ config:
     platform: false
     system: true
     workload: true
-# 可选。 chart 值模版, 在插件部署和更新时, 由插件中心渲染并后同 chart 一起部署
+# 可选。 chart 值模版, 在插件部署和更新时, 由插件中心渲染并随同 chart 一起部署
 valuesTemplates:
   ait/chart-alauda-log-agent: |
     global:
@@ -159,7 +159,7 @@ Alb2Port        int # ALB2 服务端口
 Alb2IP          string # ALB2 IP 地址
 Ports           map[string]string # 
 RegistryAddress string # 镜像仓库地址
-IsGlobal        bool # 当前集群是否时 global 集群
+IsGlobal        bool # 当前集群是否是 global 集群
 Version         string # 集群版本
 MiSpec           minfov1alpha1.ModuleInfoSpec # 对应 ModuleInfo spec
 MiConfig         interface{} # 对应插件的用户配置 ModuleInfo spec.config
@@ -169,7 +169,7 @@ MiConfig         interface{} # 对应插件的用户配置 ModuleInfo spec.confi
 动态表单，即前端预设一套内置的表单控件，并提供配置能力，让后端/用户能够通过配置直接生成表单。
 使用动态表单的目的是，后端组件部署升级时的表单配置，可以由各组件后端维护，与前端业务代码解耦。
 
-deployDescriptors 和 editDescriptors 中可以定义插件的动态表单。descriptor 支持的能例如下：
+deployDescriptors 和 editDescriptors 中可以定义插件的动态表单。descriptor 支持的能力如下：
 
 ---------------
 | descriptor | 能力说明 | 示例  |
@@ -182,7 +182,7 @@ deployDescriptors 和 editDescriptors 中可以定义插件的动态表单。des
 | urn:alm:descriptor:com.tectonic.ui:arrayFieldGroup: | 描述一组数据以array形式位于某个字段下 | urn:alm:descriptor:com.tectonic.ui:arrayFieldGroup:backup.tasks |
 | urn:alm:descriptor:com.tectonic.ui:select: | 基本选择框，直接在一个descriptor中传入多个select构成一个下拉选择器 | \- urn:alm:descriptor:com.tectonic.ui:select:a<br><br>\- urn:alm:descriptor:com.tectonic.ui:select:b<br><br>\- urn:alm:descriptor:com.tectonic.ui:select:c |
 | urn:alm:descriptor:com.tectonic.ui:advanced | 在每个field内加入此描述，来使得多个项目放置于展开收起之下 |     |
-| urn:alm:descriptor:com.tectonic.ui:fieldDependency: | 声明某个field依赖于其他field,即只当指定path的数据为value时展示，格式为 <prefx>path:value | urn:alm:descriptor:com.tectonic.ui:fieldDependency:grafana.enabled:true |
+| urn:alm:descriptor:com.tectonic.ui:fieldDependency: | 声明某个field依赖于其他field,即只当指定path的数据为value时展示，格式为 <prefix>path:value | urn:alm:descriptor:com.tectonic.ui:fieldDependency:grafana.enabled:true |
 | urn:alm:descriptor:com.tectonic.default: | 声明某个field的默认值 | urn:alm:descriptor:com.tectonic.default:1 |
 | urn:alm:descriptor:com.tectonic.ui:hidden | 指定该field隐藏 |     |
 | urn:alm:descriptor:label:en: | 指定label英文名称，label即表单控件左边的文本 |     |
@@ -199,44 +199,44 @@ deployDescriptors 和 editDescriptors 中可以定义插件的动态表单。des
 ## 开关
 
 使用场景：用于绝大部分的两项选择
-![dynform_switch_01.png](../images/dynform_switch.png)
+![dynform_switch.png](../images/dynform_switch.png)
 
 ### 文本/数字
 
 使用场景：用于纯文本/数字输入
-![dynform_switch_01.png](../images/dynform_number.png)
+![dynform_number.png](../images/dynform_number.png)
 
 ### 文本框
 
 使用场景：用于多行文本输入
 
-![dynform_switch_01.png](../images/dynform_text.png)
+![dynform_text.png](../images/dynform_text.png)
 ### 下拉选择
 
 使用场景：用于有限项（后端配置）的情形选择
 
 由descriptor指定下拉选项，所有的下拉项的显示值即为yaml中填写值，通常情况下则为英文，无法进行翻译
 
-![dynform_switch_01.png](../images/dynform_select_01.png)
+![dynform_select_01.png](../images/dynform_select_01.png)
 ### 资源选择
 
 使用场景：用于选择某个k8s资源实例，可配合labelSelector，支持多选
 
 通过resource api实时获取的资源列表，可指定多选，支持 label过滤查询，支持指定global/业务集群（当前集群）资源
 
-![dynform_switch_01.png](../images/dynform_select_02.png)
-![dynform_switch_01.png](../images/dynform_select_03.png)
+![dynform_select_02.png](../images/dynform_select_02.png)
+![dynform_select_03.png](../images/dynform_select_03.png)
 
 ### 文字说明 / 必填项提示 / 错误提示
 
 文字说明统一放置在field下方，以灰色小字展示。必填项提示的\*位于label左侧，需要加上必填项校验器，错误提示文案在下方，具体错误分类在下方列表说明
 
-![dynform_switch_01.png](../images/dynform_tip.png)
+![dynform_tip.png](../images/dynform_tip.png)
 ### yaml
 
 使用场景，用于编辑yaml
 
-![dynform_switch_01.png](../images/dynform_yaml.png)
+![dynform_yaml.png](../images/dynform_yaml.png)
 
 
 ### 展开收起
@@ -245,12 +245,12 @@ deployDescriptors 和 editDescriptors 中可以定义插件的动态表单。des
 
 收起
 
-![dynform_switch_01.png](../images/dynform_advance_01.png)
+![dynform_advance_01.png](../images/dynform_advance_01.png)
 
 展开
 
-![dynform_switch_01.png](../images/dynform_advance_02.png)
+![dynform_advance_02.png](../images/dynform_advance_02.png)
 通过ui:fieldGroup descriptor可以定制这里的高级选项文案（即此处展开收起的label可配置），只要在ui:fieldGroup所在的该条field里加入 urn:alm:descriptor:label:zh:，urn:alm:descriptor:label:en: 即可,例如
 
-![dynform_switch_01.png](../images/dynform_advance_03.png)
+![dynform_advance_03.png](../images/dynform_advance_03.png)
 
