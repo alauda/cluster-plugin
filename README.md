@@ -3,15 +3,16 @@
 插件由插件声明（ModulePlugin CR）和插件 chart 包组成。 插件声明中包含插件的基础信息和部署条件，
 插件 chart 包为一个正常可由 sentry 部署的 chart 和动态表单配置文件。
 ![how_plugin_composed.png](images/how_plugin_composed.png)
+
 ### 插件的声明（必选。ModulePlugin CR module-plugin.yaml）
-ModulePlugin CR 声明了插件的名称，集群亲和配置，chart 列表等信息。参考示例 [moduleplugin.md](docs%2Fmoduleplugin.md)。
+ModulePlugin CR 声明了插件的名称，集群亲和配置，chart 列表等信息。参考示例 [moduleplugin.md](docs/moduleplugin.md)。
 
 ModulePlugin CR 中可声明多个 chart，.spec.mainChart 为主 chart。ModulePlugin CR 内容保存在文件 module-plugin.yaml，该文件放在主 chart 根目录。
 
 ModulePlugin CR 的 .spec.version 字段声明了当前插件的版本，平台会根据当前 CR 创建出一个 ModuleConfig CR，表示对应的插件版本。如果升级新版本，只需要变更 ModulePlugin CR 的 .spec.version 字段便会生成新的 ModuleConfig CR。
 
 ### 插件的配置项（必选。scripts/plugin-config.yaml）
-scripts/plugin-config.yaml 文件需要创建在 ModulePlugin CR 指定的 mainChart 中. <strong>没有配置项的插件也需要这个文件</strong>。插件配置示例参考文档 [scriptpluginconfig.md](docs/scriptspluginconfig.md)。
+scripts/plugin-config.yaml 文件需要创建在 ModulePlugin CR 指定的 mainChart 中. <strong>没有配置项的插件也需要这个文件</strong>。插件配置示例参考文档 [scriptspluginconfig.md](docs/scriptspluginconfig.md)。
 
 ### 镜像清单（必选）
 主 chart values.yaml 中声明插件所需的镜像清单。需要按如下格式声明：
@@ -31,6 +32,23 @@ global:
 使用动态表单的目的是，后端组件部署升级时的表单配置，可以由各组件后端维护，与前端业务代码解耦。
 
 动态表单的配置方式参考文档 [scriptspluginconfig.md](docs/scriptspluginconfig.md)。
+
+## 插件工作原理
+![how_plugin_works.png](images/how_plugin_works.png)
+
+插件的安装和管理是由 global 集群的 cluster-transformer 组件（插件中心）实现的。cluster-transformer 提供了很多 controller，与插件相关的 controller 主要有三个：
+
+- moduleplugin-controller：协调 ModulePlugin CR，该资源定义了插件所需的 AppRelease、Logo、显示名称、展示或升级时的中英文文案等信息，资源状态会更新插件部署的集群以及插件版本信息、关联的 ModuleConfig 信息。该 controller 也会为每个插件版本创建一个 ModuleConfig 资源，如果插件提供了动态表单，也会把表单配置信息渲染到 ModuleConfig 资源中。
+- moduleconfig-controller：协调 ModuleConfig CR，该资源定义了插件某个版本的配置信息，具体包括：亲和反亲和配置、AppRelease 列表、动态表单配置、依赖的 Module、主 Chart 等；
+- moduleinfo-controller：协调 ModuleInfo 资源，该资源定义了插件部署的目标集群、插件版本、插件 Entrypoint 等。controller 会根据插件版本选择对应的 ModuleConfig 在目标集群安装 AppRelease。
+
+结合上图，插件的工作流程如下：
+1. 先把 ModulePlugin 部署到集群，moduleplugin-controller 会结合 ModulePlugin、ProductBase、从 sentry 请求插件配置文件（文件中包含了动态表单配置）scripts/plugin-config.yaml 生成或更新 ModuleConfig 资源；
+   1. 如果 ModulePlugin 的 spec.appReleases[].version 值是 refer-to-productbase，表示 chart 的版本参考 ProductBase，否则以 ModulePlugin 的值为准；
+   2. ModulePlugin 会向 sentry 加载指定版本的 chart 中 scripts/plugin-config.yaml 内容，该配置里包含了插件的详细配置，比如 supportedUpgradeVersions 定义了可支持升级的版本，deployDescriptors 定义了动态表单配置。
+2. moduleplugin-controller 根据 AppRelease 中所有 chart 的版本计算出新的版本号作为 ModuleConfig 的版本，并创建 ModuleConfig。这也意味着只要 AppRelease 的 chart 中任何一个版本发生了变化，moduleplugin-controller 就会创建出一个新的 ModuleConfig 资源。
+3. 前端创建 ModuleInfo 资源，该资源指定了插件版本、插件需要部署的集群以及插件的依赖。moduleinfo-controller 等待插件的依赖运行正常之后才会往目标集群部署插件的 AppRelease 资源。
+4. 目标集群的 sentry 服务监听到 AppRelease 的请求，会下载对应的 chart 并协调出 workloads，直到所有的 workloads 运行正常，更新 AppRelease 的状态。
 
 ## 插件的生命周期
 ### 部署插件
@@ -69,7 +87,7 @@ global:
 
 2. 准备好 OCI 主 chart 制品，chart 中包含的内容如下：
    1. 插件的声明文件 module-plugin.yaml，必须放在 chart 根目录。示例参考文档 [moduleplugin.yaml](docs/examples/yamls/moduleplugin.yaml)，配置的字段含义参考文档 [moduleplugin.md](docs/moduleplugin.md)； 
-   2. 插件配置文件 scripts/plugin-config.yaml。即使不需要动态表单，也必须有该文件。配置的字段说明参考文档 [scriptpluginconfig.md](docs/scriptspluginconfig.md)。scripts/plugin-config.yaml 示例参考；
+   2. 插件配置文件 scripts/plugin-config.yaml。即使不需要动态表单，也必须有该文件。配置的字段说明参考文档 [scriptspluginconfig.md](docs/scriptspluginconfig.md)。scripts/plugin-config.yaml 示例参考 [plugin-config.yaml](docs/examples/yamls/plugin-config.yaml)；
    3. helm chart 文件。
 
 3. 打包插件
@@ -82,7 +100,7 @@ global:
      --plain 可选。主制品所在镜像仓库以 http 访问时，指定此参数，例子中镜像仓库 harbor.demo.io 是需要 https 访问，所以未指定此参数
      --username 镜像仓库用户名 \
      --password 镜像仓库密码 \
-     --module-plugin 可选。MoudulePlugin 的 yaml 文件的路径
+     --module-plugin 可选。ModulePlugin 的 yaml 文件的路径
    ```
    2. violet package 打包插件：
    ```shell
@@ -98,7 +116,7 @@ global:
    violet_linux_amd64 push <plugin-name>.tgz \
      --platform-address ACP 平台地址 \
      --platform-username ACP 平台登录用户名 \
-     --platform-password ACP 平台登录用户名
+     --platform-password ACP 平台登录密码
    ```
 
 ### 部署和卸载插件
@@ -114,13 +132,13 @@ global:
    apiVersion: cluster.alauda.io/v1alpha1
    kind: ModulePlugin
    metadata:
-   name: plugin-demo
+     name: plugin-demo
    spec:
-   # ...
-   - dependencies
-      - moduleName: kubernetes
-        versionsMatch:
-         - '>=1.16.0'
+     # ...
+     dependencies:
+       - moduleName: kubernetes
+         versionsMatch:
+           - '>=1.16.0'
    ```
    以上示例中 plugin-demo 插件依赖 kubernetes v1.16.0 以及更高版本。versionMatch 的表达式需要符合 [semver ranges 规范](https://github.com/blang/semver)。
 4. 插件中 k8s client 建议使用 ACP 支持的最高 k8s 版本，如果插件中部署或使用 k8s 内置资源，建议用最新稳定版本。避免 ACP 升级后 API 失效影响插件正常使用； 

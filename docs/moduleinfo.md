@@ -33,7 +33,7 @@ spec:
 ---------------
 | 字段                       | 说明                                                                       | 必选 |
 |--------------------------|--------------------------------------------------------------------------|----|
-| metadata.name            | ModuleInfo CR 名称，为避免重名，插件后台最终会将名称格式改为 ${plugin-name}-${33 位长度的 hash 字符串} | 是  |
-| spec.version             | 部署的集群版本                                                                  | 是  |
+| metadata.name            | ModuleInfo CR 名称，为避免重名，插件后台最终会将名称格式改为 ${plugin-name}-${32 位长度的 hash 字符串} | 是  |
+| spec.version             | 部署的插件版本                                                                  | 是  |
 | metadata.ownerReferences | 插件所在集群。前端部署插件时，后台自动会添加集群引用                                               | 否  |
 | spec.config              | 插件配置，配置方式参考文档 [scriptspluginconfig.md](scriptspluginconfig.md)           | 否  |
