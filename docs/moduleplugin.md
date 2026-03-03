@@ -21,8 +21,8 @@ spec:
     - test-plugin
   appReleases:
   - chartVersions:
-    - name: ait/chart-example
-      releaseName: chart-example
+    - name: ait/chart-sample
+      releaseName: chart-sample
       version: v0.0.1
     name: test-plugin
   deleteRiskDescription: 中文 # 可选，删除插件风险提示中文文案
