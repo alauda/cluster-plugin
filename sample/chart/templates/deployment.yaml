@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    {{- if .Values.global.labels }}
+    {{- range $key, $val:= .Values.global.labels }}
+    "{{ $key }}": "{{ $val }}"
+    {{- end }}
+    {{- end }}
+    app: demo-deployment
+    chart: '{{.Chart.Name}}'
+  name: demo-deployment
+  namespace: {{.Values.global.namespace}}
+spec:
+  replicas: {{ .Values.global.replicas }}
+  selector:
+    matchLabels:
+      app: demo-deployment
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        {{- if .Values.global.labels }}
+        {{- range $key, $val:= .Values.global.labels }}
+        "{{ $key }}": "{{ $val }}"
+        {{- end }}
+        {{- end }}
+        app: demo-deployment
+        service_name: demo-deployment
+    spec:
+      automountServiceAccountToken: true
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - demo-deployment
+              topologyKey: kubernetes.io/hostname
+      tolerations:
+{{ toYaml .Values.global.tolerations | indent 8 }}
+      containers:
+        - command:
+            - /sleep
+            - infinity
+          image: '{{.Values.global.registry.address}}/{{.Values.global.images.kubectl.repository}}:{{.Values.global.images.kubectl.tag}}'
+          name: demo-deployment
+          imagePullPolicy: IfNotPresent
+          resources:
+{{ toYaml .Values.global.resources | indent 12 }}
+          {{- if .Values.global.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.global.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+      serviceAccountName: demo-sa

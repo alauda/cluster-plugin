@@ -1,0 +1,45 @@
+global:
+  namespace: cpaas-system
+  labelBaseDomain: cpaas.io
+  replicas: 2
+  cluster:
+    isGlobal: false
+  registry:
+    address: demo.registry.cn
+    imagePullSecrets: []
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+    enabled: true
+    fsGroup: 697
+  containerSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+    enabled: true
+    runAsUser: 697
+    runAsGroup: 697
+  certificate:
+    duration: 87600h0m0s # 10y
+    renewBefore: 720h0m0s # 30d
+  images:
+    kubectl: # 镜像名称，可自定义
+      repository: 3rdparty/kubectl # 镜像仓库地址
+      tag: v1.31.2 # 镜像 tag
+      code: github.com/kubernetes/kubernetes # 代码仓库
+      support_arm: true # 是否支持 arm 架构
+      thirdparty: true  # 是否是三方镜像
+  resources:
+    requests:
+      cpu: 100m
+      memory: 160Mi
+    limits:
+      cpu: "500m"
+      memory: 1Gi
+      ephemeral-storage: 1Gi
+  tolerations:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/master
+      operator: Exists
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/control-plane
+      operator: Exists
