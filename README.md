@@ -146,4 +146,6 @@ global:
 6. 插件的版本尽量保持向后兼容。尤其插件被其他插件依赖时，兼容的版本可以减少对其他插件的影响。
 
 # 插件样例
+参考 [从 Helm Chart 构建 ACP 插件指南](docs/plugin-build-guide.md)
+
 完整的插件样例，参考 [sample/chart](sample/chart)
