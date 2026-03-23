@@ -32,6 +32,7 @@ your-chart/
 ### 最小化示例
 
 ```yaml
+apiVersion: cluster.alauda.io/v1alpha1
 kind: ModulePlugin
 metadata:
   annotations:
@@ -177,6 +178,8 @@ global:
 ```
 
 `<image-name>` 可自定义命名。violet 打包时会根据此清单自动导出镜像。
+
+> **注意：** 如果希望镜像跟随插件一起打包，必须将镜像配置声明在 `values.yaml` 的 `global.images` 路径下。`repository` 字段只填写仓库路径，不可以带 registry 地址，例如应写成 `my-org/my-app`，而不是 `harbor.example.com/my-org/my-app`。
 
 ## 第四步：使用 violet 打包
 

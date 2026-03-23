@@ -2,6 +2,7 @@
 
 ## 配置说明
 ```yaml
+apiVersion: cluster.alauda.io/v1alpha1
 kind: ModulePlugin
 metadata:
   annotations:

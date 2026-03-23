@@ -77,6 +77,8 @@ global:
 4. scripts/plugin-config：[scriptspluginconfig.md](docs/scriptspluginconfig.md)
 
 ## 如何打包和安装插件
+构建已有 Helm chart 为 ACP 集群插件的完整流程，参考 [从 Helm Chart 构建 ACP 插件指南](docs/plugin-build-guide.md)。
+
 ### 打包插件
 1. 下载打包工具 violet。下载地址：
    1. violet_linux_arm64: https://cloud.alauda.io/attachments/knowledge/violet/violet_linux_arm64
